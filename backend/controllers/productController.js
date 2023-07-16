@@ -1,4 +1,6 @@
 const Product = require('../models/productModel');
+const ErrorHandler = require('../utils/errorHandler');
+const APIFeatures = require('../utils/apiFeatures');
 
 // @desc    Create new product
 // @route   POST /api/v1/product/admin/create
@@ -11,7 +13,8 @@ const createProduct = async (req, res, next) => {
 
     res.status(201).json({ success: true, product });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    // res.status(400).json({ success: false, message: error.message });
+    return next(new ErrorHandler(error.message, 400));
   }
 };
 
@@ -20,20 +23,38 @@ const createProduct = async (req, res, next) => {
 // @access  Public
 
 const getProducts = async (req, res) => {
-  const products = await Product.find();
-  res.status(200).json({ success: true, count: products.length, products });
+  try {
+    const resPerPage = 4;
+    const productCount = await Product.countDocuments();
+    const apiFeatures = new APIFeatures(Product.find(), req.query)
+      .search()
+      .filter()
+      .pagination(resPerPage);
+    const products = await apiFeatures.query;
+    // const products = await Product.find();
+    res
+      .status(200)
+      .json({ success: true, count: products.length, productCount, products });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
 };
 
 // @desc    Get single product
 // @route   GET /api/v1/product/:id
 // @access  Public
 
-const getProductById = async (req, res) => {
-  const product = await Product.findById(req.params.id);
-  if (!product) {
-    res.status(404).json({ success: false, message: 'Product not found.' });
+const getProductById = async (req, res, next) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      // res.status(404).json({ success: false, message: 'Product not found.' });
+      return next(new ErrorHandler('Product not found.', 404));
+    }
+    res.status(200).json({ success: true, product });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
   }
-  res.status(200).json({ success: true, product });
 };
 
 // @desc    Update product
@@ -41,18 +62,23 @@ const getProductById = async (req, res) => {
 // @access  Private/Admin
 
 const updateProduct = async (req, res) => {
-  const product = await Product.findById(req.params.id);
-  if (!product) {
-    res.status(404).json({ success: false, message: 'Product not found.' });
-  }
-  const updatedProduct = await Product.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    {
-      new: true,
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      // res.status(404).json({ success: false, message: 'Product not found.' });
+      return next(new ErrorHandler('Product not found.', 404));
     }
-  );
-  res.status(200).json({ success: true, updatedProduct });
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+      }
+    );
+    res.status(200).json({ success: true, updatedProduct });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
 };
 
 // @desc    Delete product
@@ -60,12 +86,17 @@ const updateProduct = async (req, res) => {
 // @access  Private/Admin
 
 const deleteProduct = async (req, res) => {
-  const product = await Product.findById(req.params.id);
-  if (!product) {
-    res.status(404).json({ success: false, message: 'Product not found.' });
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      // res.status(404).json({ success: false, message: 'Product not found.' });
+      return next(new ErrorHandler('Product not found.', 404));
+    }
+    await product.remove();
+    res.status(200).json({ success: true, message: 'Product deleted.' });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
   }
-  await product.remove();
-  res.status(200).json({ success: true, message: 'Product deleted.' });
 };
 
 module.exports = {
