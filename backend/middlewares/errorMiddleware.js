@@ -19,6 +19,7 @@ module.exports = (err, req, res, next) => {
 
     const name = err.message.split(' ')[0];
     const errorName = err.message.split(':')[0];
+    const duplicate = err.message.split(' ')[0];
 
     if (name === 'Cast') {
       const message = `Resource not found. Invalid: Content ID.`;
@@ -28,7 +29,17 @@ module.exports = (err, req, res, next) => {
         statusCode: 400,
         message: message,
       });
-    } else if (errorName === 'Product validation failed') {
+    }else if(duplicate === 'E11000'){
+      const message = `Email already exists.`;
+      return res.status(err.statusCode).json({
+        success: false,
+        statusCode: 400,
+        Field: 'Email',
+        message: message,
+      });
+    }
+    
+    else if (errorName === 'Product validation failed') {
       // const message =
       // err.message.split(':')[1].trim() + ': ' + err.message.split(':')[2];
       // multiple errors
