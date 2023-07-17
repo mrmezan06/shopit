@@ -9,8 +9,9 @@ const {
   updateProduct,
   deleteProduct,
 } = require('../controllers/productController');
+const isAuthenticatd = require('../middlewares/authMiddleware');
 
-router.get('/', getProducts);
+router.get('/', isAuthenticatd, getProducts);
 router.post('/admin/create', createProduct);
 router.get('/:id', getProductById);
 router.put('/admin/:id', updateProduct);
