@@ -2,6 +2,7 @@ const User = require('../models/userModel');
 const ErrorHandler = require('../utils/errorHandler');
 const sendToken = require('../utils/jwtToken');
 const sendEmail = require('../utils/sendEmail');
+const crypto = require('crypto');
 
 // @desc    Create new user
 // @route   POST /api/v1/user/admin/create
@@ -106,6 +107,61 @@ const forgotPassword = async (req, res, next) => {
   } catch (error) {}
 };
 
+// @desc Reset password
+// @route PUT /api/v1/user/password/reset/:token
+// @access Public
+
+const resetPassword = async (req, res, next) => {
+  try {
+    // Hash URL token
+    const resetPasswordToken = crypto
+      .createHash('sha256')
+      .update(req.params.token)
+      .digest('hex');
+
+    // Find user with hashed token, and check if token is expired or not
+
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return next(
+        new ErrorHandler(
+          'Password reset token is invalid or has been expired',
+          400
+        )
+      );
+    }
+
+    /* if (user.resetPasswordExpire < Date.now()) {
+      return next(
+        new ErrorHandler(
+          'Password reset token is invalid or has been expired',
+          400
+        )
+      );
+    } */
+
+    if (req.body.password !== req.body.confirmPassword) {
+      return next(new ErrorHandler('Password does not match', 400));
+    }
+    // Setup new password
+
+    user.password = req.body.password;
+
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    sendToken(user, 200, res);
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+};
+
 // @desc Logout user
 // @route GET /api/v1/user/logout
 // @access Public
@@ -126,4 +182,10 @@ const logoutUser = async (req, res, next) => {
   }
 };
 
-module.exports = { createUser, loginUser, logoutUser, forgotPassword };
+module.exports = {
+  createUser,
+  loginUser,
+  logoutUser,
+  forgotPassword,
+  resetPassword,
+};
