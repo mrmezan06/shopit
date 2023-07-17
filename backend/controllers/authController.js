@@ -18,10 +18,47 @@ const createUser = async (req, res, next) => {
       },
     });
 
-    res.status(201).json({ success: true, user });
+    const token = user.getJwtToken();
+
+    res.status(201).json({ success: true, user, token });
   } catch (error) {
     return next(new ErrorHandler(error.message, 400));
   }
 };
 
-module.exports = { createUser };
+// @desc Login user
+// @route POST /api/v1/user/login
+// @access Public
+
+const loginUser = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    // Check if email and password is entered by user
+    if (!email || !password) {
+      return next(new ErrorHandler('Please enter email & password', 400));
+    }
+
+    // Find user in database
+    const user = await User.findOne({ email }).select('+password');
+
+    if (!user) {
+      return next(new ErrorHandler('Invalid email or password', 401));
+    }
+
+    // Check if password is correct or not
+    const isPasswordMatched = await user.comparePassword(password);
+
+    if (!isPasswordMatched) {
+      return next(new ErrorHandler('Invalid email or password', 401));
+    }
+
+    const token = user.getJwtToken();
+
+    res.status(200).json({ success: true, token });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+};
+
+module.exports = { createUser, loginUser };
