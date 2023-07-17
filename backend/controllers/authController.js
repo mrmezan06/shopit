@@ -1,5 +1,6 @@
 const User = require('../models/userModel');
 const ErrorHandler = require('../utils/errorHandler');
+const sendToken = require('../utils/jwtToken');
 
 // @desc    Create new user
 // @route   POST /api/v1/user/admin/create
@@ -18,9 +19,7 @@ const createUser = async (req, res, next) => {
       },
     });
 
-    const token = user.getJwtToken();
-
-    res.status(201).json({ success: true, user, token });
+    sendToken(user, 201, res);
   } catch (error) {
     return next(new ErrorHandler(error.message, 400));
   }
@@ -53,9 +52,7 @@ const loginUser = async (req, res, next) => {
       return next(new ErrorHandler('Invalid email or password', 401));
     }
 
-    const token = user.getJwtToken();
-
-    res.status(200).json({ success: true, token });
+    sendToken(user, 200, res);
   } catch (error) {
     return next(new ErrorHandler(error.message, 400));
   }
