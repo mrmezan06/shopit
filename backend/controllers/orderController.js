@@ -76,9 +76,93 @@ const myOrders = async (req, res, next) => {
         }
 }
 
+// @desc    Get all orders - ADMIN
+// @route   GET /api/v1/order/admin/orders
+// @access  Private/Admin
+
+const allOrders = async (req, res, next) => {
+    try {
+        const orders = await Order.find()
+
+        let totalAmount = 0;
+
+        orders.forEach(order => {
+            totalAmount += order.totalPrice
+        })
+
+        res.status(200).json({ success: true, totalAmount, orders })
+        } catch (error) {
+        return next(new ErrorHandler(error.message, 400));
+        }
+}
+
+// @desc    Update / Process order - ADMIN
+// @route   PUT /api/v1/order/admin/order/:id
+// @access  Private/Admin
+
+const updateOrder = async (req, res, next) => {
+    try {
+        const order = await Order.findById(req.params.id)
+
+        if(!order) {
+            return next(new ErrorHandler('No order found!', 404));
+        }
+
+        if(order.orderStatus === 'Delivered') {
+            return next(new ErrorHandler('You have already delivered this order.', 400));
+        }
+
+        order.orderItems.forEach(async item => {
+            await updateStock(item.product, item.quantity)
+        })
+
+        order.orderStatus = req.body.status,
+        order.deliveredAt = Date.now()
+
+        await order.save()
+
+        res.status(200).json({ success: true, order })
+        } catch (error) {
+        return next(new ErrorHandler(error.message, 400));
+        }
+}
+
+// @desc    Delete order
+// @route   DELETE /api/v1/order/admin/order/:id
+// @access  Private/Admin
+
+const deleteOrder = async (req, res, next) => {
+    try {
+        const order = await Order.findById(req.params.id)
+
+        if(!order) {
+            return next(new ErrorHandler('No order found!', 404));
+        }
+
+        await Order.findByIdAndDelete(req.params.id)
+
+        res.status(200).json({ success: true, message: 'Order deleted successfully.' })
+        } catch (error) {
+        return next(new ErrorHandler(error.message, 400));
+        }
+}
+
+// Update stock after order is placed
+
+async function updateStock(id, quantity) {
+    const product = await Product.findById(id)
+
+    product.stock = product.stock - quantity
+
+    await product.save({ validateBeforeSave: false })
+}
+
 
 module.exports = {
     createOrder,
     getSingleOrder,
-    myOrders
+    myOrders,
+    allOrders,
+    updateOrder,
+    deleteOrder
 };
