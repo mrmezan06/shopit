@@ -162,6 +162,183 @@ const resetPassword = async (req, res, next) => {
   }
 };
 
+// @desc Get currently logged in user details
+// @route GET /api/v1/user/me
+// @access Private
+
+const getUserProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+};
+
+// @desc Update / Change password
+// @route PUT /api/v1/user/password/update
+// @access Private
+
+const updatePassword = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id).select('+password');
+
+    // Check previous user password
+    const isMatched = await user.comparePassword(req.body.oldPassword);
+
+    if (!isMatched) {
+      return next(new ErrorHandler('Old password is incorrect', 400));
+    }
+
+    user.password = req.body.password;
+    await user.save();
+
+    sendToken(user, 200, res);
+
+    
+
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+};
+
+// @desc Update user profile
+// @route PUT /api/v1/user/me/update
+// @access Private
+
+const updateUserProfile = async (req, res, next) => {
+  try {
+    const newUserData = {
+      name: req.body.name,
+      email: req.body.email,
+    };
+
+    // Update avatar: TODO
+
+    const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
+      new: true,
+      runValidators: true,
+    });
+
+    if(!user) {
+      return next(new ErrorHandler('User not found', 404));
+    }
+
+    res.status(200).json({
+      success: true,
+      user
+    });
+
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+};
+
+// @desc Get All users
+// @route GET /api/v1/user/admin/users
+// @access Private/Admin
+
+const getAllUsers = async (req, res, next) => {
+  try {
+    const users = await User.find();
+
+    if (!users) {
+      return next(new ErrorHandler('No users found', 404));
+    }
+
+    res.status(200).json({
+      success: true,
+      users,
+    });
+
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+};
+
+// @desc Get user details by id
+// @route GET /api/v1/user/admin/user/:id
+// @access Private/Admin
+
+const getUserDetailsById = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return next(new ErrorHandler(`User does not exist with id: ${req.params.id}`));
+    }
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
+
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+};
+
+// @desc Update user profile by admin
+// @route PUT /api/v1/user/admin/user/:id
+// @access Private/Admin
+
+const updateUserProfileByAdmin = async (req, res, next) => {
+  try {
+    const newUserData = {
+      name: req.body.name,
+      email: req.body.email,
+      role: req.body.role,
+    };
+
+    // Update avatar: TODO
+
+    const user = await User.findByIdAndUpdate(req.params.id, newUserData, {
+      new: true,
+      runValidators: true,
+    });
+
+    if(!user) {
+      return next(new ErrorHandler(`User does not exist with id: ${req.params.id}`));
+    }
+    res.status(200).json({
+      success: true,
+      user
+    });
+
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+};
+
+// @desc Delete user by admin
+// @route DELETE /api/v1/user/admin/user/:id
+// @access Private/Admin
+
+const deleteUserByAdmin = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if(!user) {
+      return next(new ErrorHandler(`User does not exist with id: ${req.params.id}`));
+    }
+
+    // Remove avatar from cloudinary: TODO
+
+    await User.findByIdAndDelete(req.params.id);
+    
+    res.status(200).json({
+      success: true,
+      message: 'User deleted successfully'
+    });
+
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+};
+
 // @desc Logout user
 // @route GET /api/v1/user/logout
 // @access Public
@@ -188,4 +365,11 @@ module.exports = {
   logoutUser,
   forgotPassword,
   resetPassword,
+  getUserProfile,
+  updatePassword,
+  updateUserProfile,
+  getAllUsers,
+  getUserDetailsById,
+  updateUserProfileByAdmin,
+  deleteUserByAdmin,
 };
