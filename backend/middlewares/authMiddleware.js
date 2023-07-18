@@ -4,7 +4,7 @@ const ErrorHandler = require('../utils/errorHandler');
 
 const jwt = require('jsonwebtoken');
 
-const isAuthenticatd = async (req, res, next) => {
+const isAuthenticated = async (req, res, next) => {
   const { token } = req.cookies;
   if (!token) {
     return next(new ErrorHandler('No token, authorization denied', 401));
@@ -16,12 +16,17 @@ const isAuthenticatd = async (req, res, next) => {
 
 // Handle user roles
 const authorizeRoles = (...roles) => {
-    return (req, res, next) => {
-        if (!roles.includes(req.user.role)) {
-            return next(new ErrorHandler(`Role (${req.user.role}) is not allowed to access this resource`, 403));
-        }
-        next();
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new ErrorHandler(
+          `Role (${req.user.role}) is not allowed to access this resource`,
+          403
+        )
+      );
     }
-}
+    next();
+  };
+};
 
-module.exports = {isAuthenticatd, authorizeRoles};
+module.exports = { isAuthenticated, authorizeRoles };

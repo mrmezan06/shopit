@@ -10,7 +10,7 @@ const {
   deleteProduct,
 } = require('../controllers/productController');
 const {
-  isAuthenticatd,
+  isAuthenticated,
   authorizeRoles,
 } = require('../middlewares/authMiddleware');
 
@@ -24,7 +24,7 @@ router.get('/', getProducts);
 // @access  Private/Admin
 router.post(
   '/admin/create',
-  isAuthenticatd,
+  isAuthenticated,
   authorizeRoles('admin'),
   createProduct
 );
@@ -39,7 +39,7 @@ router.get('/:id', getProductById);
 // @access  Private/Admin
 router.put(
   '/admin/:id',
-  isAuthenticatd,
+  isAuthenticated,
   authorizeRoles('admin'),
   updateProduct
 );
@@ -49,7 +49,7 @@ router.put(
 // @access  Private/Admin
 router.delete(
   '/admin/:id',
-  isAuthenticatd,
+  isAuthenticated,
   authorizeRoles('admin'),
   deleteProduct
 );

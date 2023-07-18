@@ -16,7 +16,7 @@ const {
   deleteUserByAdmin,
 } = require('../controllers/authController');
 const {
-  isAuthenticatd,
+  isAuthenticated,
   authorizeRoles,
 } = require('../middlewares/authMiddleware');
 
@@ -25,30 +25,30 @@ router.post('/login', loginUser);
 router.get('/logout', logoutUser);
 router.post('/password/forgot', forgotPassword);
 router.put('/password/reset/:token', resetPassword);
-router.get('/me', isAuthenticatd, getUserProfile);
-router.put('/password/update', isAuthenticatd, updatePassword);
-router.put('/me/update', isAuthenticatd, updateUserProfile);
+router.get('/me', isAuthenticated, getUserProfile);
+router.put('/password/update', isAuthenticated, updatePassword);
+router.put('/me/update', isAuthenticated, updateUserProfile);
 router.get(
   '/admin/users',
-  isAuthenticatd,
+  isAuthenticated,
   authorizeRoles('admin'),
   getAllUsers
 );
 router.get(
   '/admin/user/:id',
-  isAuthenticatd,
+  isAuthenticated,
   authorizeRoles('admin'),
   getUserDetailsById
 );
 router.put(
   '/admin/user/:id',
-  isAuthenticatd,
+  isAuthenticated,
   authorizeRoles('admin'),
   updateUserProfileByAdmin
 );
 router.delete(
   '/admin/user/:id',
-  isAuthenticatd,
+  isAuthenticated,
   authorizeRoles('admin'),
   deleteUserByAdmin
 );
