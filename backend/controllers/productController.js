@@ -147,6 +147,56 @@ const createProductReview = async (req, res, next) => {
   }
 };
 
+// @desc    Get product reviews by product id
+// @route   GET /api/v1/product/review/reviews?id=productId
+// @access  Private
+
+const getProductReviews = async (req, res, next) => {
+  try {
+    const product = await Product.findById(req.query.id);
+    if (!product) {
+      // res.status(404).json({ success: false, message: 'Product not found.' });
+      return next(new ErrorHandler('Product not found.', 404));
+    
+  }
+
+    res.status(200).json({ success: true, reviews: product.reviews });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+};
+
+// @desc    Delete product review
+// @route   DELETE /api/v1/product/reviews?id=productId&reviewId=reviewId
+// @access  Private
+
+const deleteReview = async (req, res, next) => {
+  try {
+    const product = await Product.findById(req.query.productId);
+    if (!product) {
+      return next(new ErrorHandler('Product not found.', 404));
+    }
+    const reviews = product.reviews.filter(
+      (review) => review._id.toString() !== req.query.reviewId.toString()
+    );
+    const numOfReviews = reviews.length;
+    const ratings =
+      (product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+      reviews.length) || 0;
+
+      const ratingFixedInf = ratings === Infinity || ratings === NaN ? 0 : ratings;
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.query.productId,
+      { reviews, ratings: ratingFixedInf, numOfReviews },
+      { new: true, runValidators: true }
+    );
+    res.status(200).json({ success: true, product: updatedProduct, message: 'Review deleted.' });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+};
+
 module.exports = {
   getProducts,
   createProduct,
@@ -154,4 +204,6 @@ module.exports = {
   updateProduct,
   deleteProduct,
   createProductReview,
+  getProductReviews,
+  deleteReview,
 };

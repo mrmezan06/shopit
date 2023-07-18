@@ -9,6 +9,8 @@ const {
   updateProduct,
   deleteProduct,
   createProductReview,
+  getProductReviews,
+  deleteReview,
 } = require('../controllers/productController');
 const {
   isAuthenticated,
@@ -55,9 +57,18 @@ router.delete(
   deleteProduct
 );
 
-// @desc    Create a new review
-// @route   PUT /api/v1/product/review
+// @desc    Get all reviews of a product by Product ID
+// @route   GET /api/v1/product/review/reviews?id=productId
 // @access  Private
-router.put('/review', isAuthenticated, createProductReview);
+router.get('/review/reviews', isAuthenticated, getProductReviews);
+
+// @desc    Create a new review or Update a review of a product
+// @route   PUT /api/v1/product/review/create
+// @access  Private
+router.put('/review/create', isAuthenticated, createProductReview);
+// @desc    Create a new review or Update a review of a product
+// @route   PUT /api/v1/product/review?productId=productId&reviewId=reviewId
+// @access  Private
+router.delete('/review', isAuthenticated, deleteReview);
 
 module.exports = router;
