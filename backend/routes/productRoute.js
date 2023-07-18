@@ -8,6 +8,7 @@ const {
   getProductById,
   updateProduct,
   deleteProduct,
+  createProductReview,
 } = require('../controllers/productController');
 const {
   isAuthenticated,
@@ -53,5 +54,10 @@ router.delete(
   authorizeRoles('admin'),
   deleteProduct
 );
+
+// @desc    Create a new review
+// @route   PUT /api/v1/product/review
+// @access  Private
+router.put('/review', isAuthenticated, createProductReview);
 
 module.exports = router;
