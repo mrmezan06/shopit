@@ -40,6 +40,45 @@ const createOrder = async (req, res, next) => {
   }
 };
 
+// @desc    Get single order and user details
+// @route   GET /api/v1/order/:id
+// @access  Private
+
+const getSingleOrder = async (req, res, next) => {
+    try {
+        const order = await Order.findById(req.params.id).populate('user', 'name email')
+    
+        if (!order) {
+          return next(new ErrorHandler('Order not found.', 404));
+        }
+    
+        res.status(200).json({ success: true, order });
+      } catch (error) {
+        return next(new ErrorHandler(error.message, 400));
+      }
+}
+
+// @desc    Get logged in user orders
+// @route   GET /api/v1/order/orders/me
+// @access  Private
+
+const myOrders = async (req, res, next) => {
+    try {
+        const orders = await Order.find({ user: req.user.id })
+
+        if(!orders) {
+            return next(new ErrorHandler('No order found!', 404));
+        }
+
+        res.status(200).json({ success: true, orders })
+        } catch (error) {
+        return next(new ErrorHandler(error.message, 400));
+        }
+}
+
+
 module.exports = {
-  createOrder,
+    createOrder,
+    getSingleOrder,
+    myOrders
 };
