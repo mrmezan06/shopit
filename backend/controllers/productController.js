@@ -24,32 +24,36 @@ const createProduct = async (req, res, next) => {
 // @route   GET /api/v1/product
 // @access  Public
 
-const getProducts = async (req, res) => {
+const getProducts = async (req, res, next) => {
   try {
-    // return next(new ErrorHandler('Test', 400));
-
-    const resPerPage = 8;
+    const resPerPage = 4;
     const productCount = await Product.countDocuments();
     const apiFeatures = new APIFeatures(Product.find(), req.query)
       .search()
       .filter()
       .pagination(resPerPage);
     const products = await apiFeatures.query;
-    // const products = await Product.find();
 
-    // setTimeout(() => {
-    //   res
-    //     .status(200)
-    //     .json({
-    //       success: true,
-    //       count: products.length,
-    //       productCount,
-    //       products,
-    //     });
-    // }, 2000);
-    res
-      .status(200)
-      .json({ success: true, count: products.length, productCount, products });
+    const apiFeatures2 = new APIFeatures(Product.find(), req.query)
+      .search()
+      .filter();
+    const products2 = await apiFeatures2.query;
+    // console.log(products2.length, productCount);
+
+    if (products2.length === productCount) {
+      res
+        .status(200)
+        .json({ success: true, resPerPage, productCount, products });
+    } else {
+      res
+        .status(200)
+        .json({
+          success: true,
+          resPerPage,
+          productCount: products2.length,
+          products,
+        });
+    }
   } catch (error) {
     return next(new ErrorHandler(error.message, 400));
   }
