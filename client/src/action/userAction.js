@@ -95,6 +95,7 @@ const logout = () => async (dispatch) => {
     await axios.get('/api/v1/user/logout');
     dispatch({
       type: LOGOUT_USER_SUCCESS,
+      user: null,
     });
   } catch (error) {
     dispatch({

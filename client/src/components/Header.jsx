@@ -2,24 +2,14 @@ import React from 'react';
 import Search from './Search';
 import { Link } from 'react-router-dom';
 
-import { useDispatch, useSelector } from 'react-redux';
-import { useToasts } from 'react-toast-notifications';
-
-import { logout } from '../action/userAction';
+import {  useSelector } from 'react-redux';
+import Menu from './Menu';
+import Loader from './Loader';
 
 const Header = () => {
-  const dispatch = useDispatch();
-  const { addToast } = useToasts();
+  
   const { user, loading } = useSelector((state) => state.auth);
 
-  const logoutHandler = () => {
-    dispatch(logout());
-    addToast('Logged out Successfully', {
-      appearance: 'success',
-      autoDismiss: true,
-      autoDismissTimeout: 3000,
-    });
-  };
   return (
     <>
       <nav className="navbar row">
@@ -45,11 +35,28 @@ const Header = () => {
               2
             </span>
           </Link>
-          {user ? (
+          <div className="ml-4 dropdown d-inline">
+            {
+            loading ? <Loader /> : user ? <Menu user={user} /> : 
+            <Link to="/login" className="btn ml-4" id="login_btn">Login</Link>
+            }
+            
+          </div>
+        </div>
+      </nav>
+    </>
+  );
+};
+
+export default Header;
+
+
+/* 
+{user ? (
             <>
               <div className="ml-4 dropdown d-inline">
                 <Link
-                  to="#!"
+                  to="#"
                   className="btn dropdown-toggle text-white mr-4"
                   type="button"
                   id="dropDownMenuButton"
@@ -84,13 +91,12 @@ const Header = () => {
                   <Link className="dropdown-item" to="/me">
                     Profile
                   </Link>
-                  <Link
+                  <button
                     className="dropdown-item text-danger"
-                    to="/"
                     onClick={logoutHandler}
                   >
                     Logout
-                  </Link>
+                  </button>
                 </div>
               </div>
             </>
@@ -101,10 +107,4 @@ const Header = () => {
               </Link>
             )
           )}
-        </div>
-      </nav>
-    </>
-  );
-};
-
-export default Header;
+*/

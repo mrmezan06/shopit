@@ -11,6 +11,7 @@ import Register from './pages/Register';
 import { loadUser } from './action/userAction';
 import store from './store';
 import { useEffect } from 'react';
+import Profile from './pages/Profile';
 
 function App() {
   useEffect(() => {
@@ -23,11 +24,12 @@ function App() {
         <Header />
         <div className="container container-fluid">
           <Routes>
-            <Route path="/" element={<Home />} exact />
+            <Route path="/" element={<Home />} />
             <Route path="/search" element={<SearchProduct />} />
-            <Route path="/product/:id" element={<ProductDetails />} exact />
-            <Route path="/login" element={<Login />} exact />
-            <Route path="/register" element={<Register />} exact />
+            <Route path="/product/:id" element={<ProductDetails />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/me" element={<Profile />} />
           </Routes>
         </div>
         <Footer />
