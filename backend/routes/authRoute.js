@@ -20,7 +20,7 @@ const {
   authorizeRoles,
 } = require('../middlewares/authMiddleware');
 
-router.post('/admin/create', createUser);
+router.post('/create', createUser);
 router.post('/login', loginUser);
 router.get('/logout', logoutUser);
 router.post('/password/forgot', forgotPassword);

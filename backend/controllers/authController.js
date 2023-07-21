@@ -3,6 +3,7 @@ const ErrorHandler = require('../utils/errorHandler');
 const sendToken = require('../utils/jwtToken');
 const sendEmail = require('../utils/sendEmail');
 const crypto = require('crypto');
+const cloudinary = require('cloudinary');
 
 // @desc    Create new user
 // @route   POST /api/v1/user/admin/create
@@ -10,14 +11,22 @@ const crypto = require('crypto');
 
 const createUser = async (req, res, next) => {
   try {
+    // folder: navigate through cloudinary folder structer and also can user root folder
+    const result = await cloudinary.v2.uploader.upload(req.body.avatar, {
+      folder: 'shopit/avatar',
+      // folder: 'avatar',
+      width: 150,
+      crop: 'scale',
+    });
+
     const { name, email, password } = req.body;
     const user = await User.create({
       name,
       email,
       password,
       avatar: {
-        public_id: 'avatars/kccvibpsuiusmwfepb3m',
-        url: 'https://res.cloudinary.com/shopit/image/upload/v1606305757/avatars/kccvibpsuiusmwfepb3m.png',
+        public_id: result.public_id,
+        url: result.secure_url,
       },
     });
 

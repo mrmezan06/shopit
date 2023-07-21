@@ -8,10 +8,9 @@ import Product from '../components/product/Product';
 import Loader from '../components/Loader';
 import { useToasts } from 'react-toast-notifications';
 
+
 const Home = () => {
   const [currentPage, setCurrentPage] = useState(1);
-
-  const keyword = window.location.search;
 
   const dispatch = useDispatch();
 
@@ -20,8 +19,6 @@ const Home = () => {
   const { loading, products, error, productsCount, resPerPage } = useSelector(
     (state) => state.products
   );
-
-  // console.log(keyword.split('=')[1]);
 
   useEffect(() => {
     if (error) {
@@ -33,8 +30,8 @@ const Home = () => {
       dispatch(clearErrors());
     }
 
-    dispatch(getProducts(keyword.split('=')[1], currentPage));
-  }, [dispatch, error, addToast, currentPage, keyword]);
+    dispatch(getProducts(currentPage));
+  }, [dispatch, error, addToast, currentPage]);
 
   const setCurrentPageNo = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -53,7 +50,7 @@ const Home = () => {
             <div className="row">
               {products &&
                 products.map((product) => (
-                  <Product key={product._id} product={product} />
+                  <Product key={product._id} product={product} col={3} />
                 ))}
             </div>
           </section>

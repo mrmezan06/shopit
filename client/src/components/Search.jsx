@@ -1,18 +1,25 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Search = () => {
   const [keyword, setKeyword] = useState('');
+
+  const navigate = useNavigate();
 
   const searchHandler = (e) => {
     e.preventDefault();
 
     if (keyword !== '') {
       // redirect to search page
-      window.location.href = `/?search=${keyword}`;
+      //   window.location.href = `/search?keyword=${keyword}`;
+
+      navigate(`/search?keyword=${keyword}`);
     } else {
-      window.location.href = '/';
+      //   window.location.href = '/';
+      navigate('/');
     }
   };
+
   return (
     <form onSubmit={searchHandler}>
       <div className="input-group">

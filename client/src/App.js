@@ -4,6 +4,9 @@ import Footer from './components/Footer';
 import Header from './components/Header';
 import Home from './pages/Home';
 import ProductDetails from './components/product/ProductDetails';
+import SearchProduct from './pages/SearchProduct';
+import Login from './pages/Login';
+import Register from './pages/Register';
 
 function App() {
   return (
@@ -13,7 +16,10 @@ function App() {
         <div className="container container-fluid">
           <Routes>
             <Route path="/" element={<Home />} exact />
+            <Route path="/search" element={<SearchProduct />} />
             <Route path="/product/:id" element={<ProductDetails />} exact />
+            <Route path="/login" element={<Login />} exact />
+            <Route path="/register" element={<Register />} exact />
           </Routes>
         </div>
         <Footer />
