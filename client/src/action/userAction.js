@@ -7,6 +7,9 @@ const {
   USER_REGISTER_FAIL,
   USER_REGISTER_REQUEST,
   USER_REGISTER_SUCCESS,
+  LOAD_USER_REQUEST,
+  LOAD_USER_SUCCESS,
+  LOAD_USER_FAIL,
 } = require('../constant/userConstant');
 
 const login = (email, password) => async (dispatch) => {
@@ -65,10 +68,30 @@ const register = (userData) => async (dispatch) => {
   }
 };
 
+const loadUser = () => async (dispatch) => {
+  try {
+    dispatch({
+      type: LOAD_USER_REQUEST,
+    });
+
+    const { data } = await axios.get('/api/v1/user/me');
+
+    dispatch({
+      type: LOAD_USER_SUCCESS,
+      payload: data.user,
+    });
+  } catch (error) {
+    dispatch({
+      type: LOAD_USER_FAIL,
+      payload: error.response.data.message,
+    });
+  }
+};
+
 const clearErrors = () => async (dispatch) => {
   dispatch({
     type: CLEAR_ERRORS,
   });
 };
 
-export { login, register, clearErrors };
+export { login, register, loadUser, clearErrors };

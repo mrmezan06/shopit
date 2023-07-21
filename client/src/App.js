@@ -8,7 +8,15 @@ import SearchProduct from './pages/SearchProduct';
 import Login from './pages/Login';
 import Register from './pages/Register';
 
+import { loadUser } from './action/userAction';
+import store from './store';
+import { useEffect } from 'react';
+
 function App() {
+  useEffect(() => {
+    store.dispatch(loadUser());
+  }, []);
+
   return (
     <BrowserRouter>
       <div className="App">
