@@ -2,14 +2,24 @@ import React from 'react';
 import Search from './Search';
 import { Link } from 'react-router-dom';
 
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useToasts } from 'react-toast-notifications';
 
-const Header = () => {
-  const { addToast } = useToasts();
-  const dispatch = useDispatch();
+import { logout } from '../action/userAction';
 
+const Header = () => {
+  const dispatch = useDispatch();
+  const { addToast } = useToasts();
   const { user, loading } = useSelector((state) => state.auth);
+
+  const logoutHandler = () => {
+    dispatch(logout());
+    addToast('Logged out Successfully', {
+      appearance: 'success',
+      autoDismiss: true,
+      autoDismissTimeout: 3000,
+    });
+  };
   return (
     <>
       <nav className="navbar row">
@@ -74,7 +84,11 @@ const Header = () => {
                   <Link className="dropdown-item" to="/me">
                     Profile
                   </Link>
-                  <Link className="dropdown-item text-danger" to="/">
+                  <Link
+                    className="dropdown-item text-danger"
+                    to="/"
+                    onClick={logoutHandler}
+                  >
                     Logout
                   </Link>
                 </div>

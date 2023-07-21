@@ -10,6 +10,8 @@ const {
   LOAD_USER_REQUEST,
   LOAD_USER_SUCCESS,
   LOAD_USER_FAIL,
+  LOGOUT_USER_FAIL,
+  LOGOUT_USER_SUCCESS,
 } = require('../constant/userConstant');
 
 const login = (email, password) => async (dispatch) => {
@@ -88,10 +90,24 @@ const loadUser = () => async (dispatch) => {
   }
 };
 
+const logout = () => async (dispatch) => {
+  try {
+    await axios.get('/api/v1/user/logout');
+    dispatch({
+      type: LOGOUT_USER_SUCCESS,
+    });
+  } catch (error) {
+    dispatch({
+      type: LOGOUT_USER_FAIL,
+      payload: error.response.data.message,
+    });
+  }
+};
+
 const clearErrors = () => async (dispatch) => {
   dispatch({
     type: CLEAR_ERRORS,
   });
 };
 
-export { login, register, loadUser, clearErrors };
+export { login, register, loadUser, logout, clearErrors };

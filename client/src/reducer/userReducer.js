@@ -2,7 +2,6 @@ const {
   USER_LOGIN_REQUEST,
   USER_LOGIN_SUCCESS,
   USER_LOGIN_FAIL,
-  USER_LOGOUT,
   CLEAR_ERRORS,
   USER_REGISTER_REQUEST,
   USER_REGISTER_SUCCESS,
@@ -10,6 +9,8 @@ const {
   LOAD_USER_REQUEST,
   LOAD_USER_SUCCESS,
   LOAD_USER_FAIL,
+  LOGOUT_USER_SUCCESS,
+  LOGOUT_USER_FAIL,
 } = require('../constant/userConstant');
 
 const authReducer = (state = { user: {} }, action) => {
@@ -47,12 +48,17 @@ const authReducer = (state = { user: {} }, action) => {
         user: null,
         error: action.payload,
       };
-    case USER_LOGOUT:
+    case LOGOUT_USER_SUCCESS:
       return {
         ...state,
         loading: false,
         isAuthenticated: false,
         user: null,
+      };
+    case LOGOUT_USER_FAIL:
+      return {
+        ...state,
+        error: action.payload,
       };
     case CLEAR_ERRORS:
       return {
